@@ -1,83 +1,94 @@
 import React from 'react'
-import FileName from '../components/FileName'
-import FileDescription from '../components/FileDescription'
+import FileField from '../components/FileField'
+import filesize from 'filesize'
 
 var FileForm = React.createClass({
-  
-  getInitialState: function() {
+
+  getInitialState: function () {
     return {
       dataUri: null,
-      activeTab: 'load'
+      isAddForm: true,
+      name: ''
     };
   },
 
-  handleSubmit: function(e) {
+  handleSubmit: function (e) {
     e.preventDefault();
   },
-
-  handleFile: function(e) {
+  fileNameChange: function (name) {
+    this.setState({
+      name: name
+    });
+  },
+  handleFile: function (e) {
     var self = this;
     var reader = new FileReader();
     var file = e.target.files[0];
     reader.fileName = file.name;
-
-    reader.onload = function(upload) {
+    reader.fileSize = filesize(file.size);
+    reader.onload = function (upload) {
+      console.log(upload.target.fileSize)
       self.setState({
         dataUri: upload.target.result,
-        name: upload.target.fileName
+        name: upload.target.fileName,
+        size: upload.target.fileSize
       });
     }
 
     reader.readAsDataURL(file);
   },
-  tabChange: function(load) {
-    let active = 'list';
-    if (load) {
-      active = 'load';
-    }
+  tabChange: function (load) {
     this.setState({
-      activeTab: active
+      isAddForm: load
     });
   },
-  render: function() {
-    let loadTabStyle = {display: 'block'};
-    let listTabStyle = {display: 'none'};
-    if (this.state.activeTab != 'load') {
-      loadTabStyle = {display: 'none'};
-      listTabStyle = {display: 'block'};
-    }
+  render: function () {
+    let info = this.state.name + ',  ' + this.state.size;
     return (
       <div>
         <div className='row'>
-          <div className='col-md-3'>
-            <button className='btn btn-primary' >File load</button>
-          </div>
-          <div className='col-md-3'>
-            <button className='btn btn-primary' >File List</button>
-          </div>
+          <ul className='nav nav-tabs' role='tablist'>
+            <li className={this.state.isAddForm?'active':''} onClick={this.tabChange.bind(this, true)}><a href='#'>File
+              load</a></li>
+            <li className={!this.state.isAddForm?'active':''} onClick={this.tabChange.bind(this, false)}><a href='#'>File
+              List</a></li>
+          </ul>
         </div>
-        <div className='row'>
-          <div className='col-md-3' style={loadTabStyle}>
-
-            <form onSubmit={this.handleSubmit} encType='multipart/form-data'>
+        <div className='row' style={{paddingTop: '50px'}}>
+          <div className='col-md-6' style={this.state.isAddForm?{display: 'block'}:{display: 'none'}}>
+            <form onSubmit={this.handleSubmit} encType='multipart/form-data' id='msg-form'>
               <div className='form-group'>
-                <input  type='file' onChange={this.handleFile} />
+                <input type='file' id='msg-file' onChange={this.handleFile}/>
               </div>
               <div className='form-group'>
-                <input className='btn btn-primary' type='submit' value='Submit' />
-              </div>
-              <div className='form-group'>
-                <FileName name={this.state.name}/>
-                <FileDescription />
+                <input className='btn btn-primary' type='submit' value='Submit'/>
               </div>
             </form>
+            <div className='form-horizontal' style={this.state.name?{display: 'block'}:{display: 'none'}}>
+              <div className='form-group'>
+                <h3>Информация о файле:</h3> {info}
+              </div>
+              <div className='form-group'>
+                <label className='col-sm-4 control-label'>Введите название:</label>
+                <div className='col-sm-8'>
+                  <FileField isTextarea={false}/>
+                </div>
+              </div>
+              <div className='form-group'>
+                <label for='inputEmail3' className='col-sm-4 control-label'>Введите описание</label>
+                <div className='col-sm-8'>
+                  <FileField isTextarea={true}/>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className='col-md-3' style={listTabStyle}>
-
+          <div className='col-md-6'>
+            <ul id='hashlist'>
+              
+            </ul>
           </div>
         </div>
       </div>
-
     );
   }
 });

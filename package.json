@@ -41,8 +41,10 @@
     "webpack-merge": "^0.8.3"
   },
   "dependencies": {
-    "jquery": "^2.2.1",
+    "filesize": "^3.3.0",
     "react": "^15.0.1",
-    "react-dom": "^15.0.1"
+    "react-dom": "^15.0.1",
+    "socket.io": "^1.4.5",
+    "socket.io-p2p-parser": "git+https://github.com/AlexanderDzhoganov/socket.io-p2p-parser.git"
   }
 }
